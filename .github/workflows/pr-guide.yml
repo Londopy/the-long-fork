@@ -1,0 +1,36 @@
+name: pr-guide
+
+# GitHub's "Contribute" button invites people to open a pull request with
+# their line. In this project the fork is the link, so explain that and close
+# the pull request. Nothing from the pull request is checked out or run.
+
+on:
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  guide:
+    if: github.repository == 'Londopy/the-long-fork'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Close link pull requests with an explanation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          MESSAGE: |
+            Thanks for joining the chain! Here a link isn't a pull request: your fork *is* your link, and the tracker finds it on its own within about 12 hours. There's nothing to merge, so this pull request is closing.
+
+            Keep your fork (please don't delete it), and look for yourself in [STATUS.txt](https://github.com/Londopy/the-long-fork/blob/main/STATUS.txt) or on [the site](https://londopy.github.io/the-long-fork/). If you forked the root rather than the tip, that's fine: you've started a side branch, and side branches can overtake.
+        run: |
+          files=$(gh pr view "$PR" --repo "$REPO" --json files --jq '.files[].path')
+          if [ "$files" != "CHAIN.txt" ]; then
+            echo "Not a link pull request; leaving it open."
+            exit 0
+          fi
+          gh pr close "$PR" --repo "$REPO" --comment "$MESSAGE"

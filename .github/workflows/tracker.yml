@@ -1,0 +1,61 @@
+name: tracker
+
+# Walks the fork network, finds the tip, and updates STATUS.txt, tree.txt,
+# badge.json, CANVAS.txt, README.md and docs/data.json. Root repo only.
+
+on:
+  schedule:
+    - cron: "17 3,15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  discussions: write
+
+concurrency:
+  group: tracker
+  cancel-in-progress: false
+
+jobs:
+  track:
+    # Every fork inherits this file. This guard keeps a forker who enables
+    # Actions from running a tracker that commits into their own link.
+    if: github.repository == 'Londopy/the-long-fork'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Restore the tracker cache
+        uses: actions/cache@v6
+        with:
+          path: ${{ runner.temp }}/tracker-cache
+          key: tracker-${{ github.run_id }}
+          restore-keys: tracker-
+
+      - name: Walk the fork network
+        env:
+          GITHUB_TOKEN: ${{ secrets.TRACKER_TOKEN || github.token }}
+          STALL_DAYS: ${{ vars.STALL_DAYS }}
+        run: python3 tools/tracker.py --cache "$RUNNER_TEMP/tracker-cache"
+
+      - name: Commit the new status
+        run: |
+          git add STATUS.txt tree.txt badge.json CANVAS.txt README.md docs/data.json
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -F "$RUNNER_TEMP/tracker-cache/commit-message.txt"
+          git push || (git pull -q --rebase && git push)
+
+      - name: Milestone releases and announcements
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ANNOUNCE_DISCUSSION: ${{ vars.ANNOUNCE_DISCUSSION }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          MASTODON_INSTANCE: ${{ vars.MASTODON_INSTANCE }}
+          MASTODON_TOKEN: ${{ secrets.MASTODON_TOKEN }}
+        run: python3 tools/tracker.py publish --cache "$RUNNER_TEMP/tracker-cache"
