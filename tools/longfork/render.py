@@ -230,7 +230,7 @@ def mermaid(tree: Tree) -> str:
         while a not in visible:
             hidden += 1
             a = nodes[a].parent
-        out.append("  %s -.->|%d hidden| %s" % (mid(a), hidden, mid(i)) if hidden
+        out.append("  %s -.->|%d more links| %s" % (mid(a), hidden, mid(i)) if hidden
                    else "  %s --> %s" % (mid(a), mid(i)))
     extra: Dict[str, int] = {}
     for i, n in nodes.items():
