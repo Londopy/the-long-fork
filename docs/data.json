@@ -1,0 +1,60 @@
+{
+ "schema": 1,
+ "generated_at": "2026-09-24T09:04:48Z",
+ "root": "Londopy/the-long-fork",
+ "repo_name": "the-long-fork",
+ "pages": "https://londopy.github.io/the-long-fork/",
+ "canvas": {
+  "width": 64,
+  "height": 32,
+  "blank": "."
+ },
+ "stall_days": 7,
+ "milestone_depths": [
+  10,
+  25,
+  50,
+  100,
+  250,
+  500,
+  1000
+ ],
+ "summary": {
+  "depth": 0,
+  "tip": "Londopy",
+  "tip_id": "f9ac21cf55a86945",
+  "tip_url": "https://github.com/Londopy/the-long-fork",
+  "tip_branch": "main",
+  "total_links": 0,
+  "side_branches": 0,
+  "pending": 0,
+  "stalled": false,
+  "last_link_at": "2026-09-24T09:04:09Z",
+  "next_depth": 1,
+  "next_prev_hash": "766aac5a6391"
+ },
+ "nodes": [
+  {
+   "id": "f9ac21cf55a86945",
+   "parent": null,
+   "depth": 0,
+   "line": "0 | Londopy | 2026-09-24 | 000000000000 | - | root",
+   "owner": "Londopy",
+   "repo": "Londopy/the-long-fork",
+   "status": "root",
+   "reasons": [],
+   "warnings": [],
+   "cell": null,
+   "note": "root",
+   "date": "2026-09-24",
+   "forked_at": "2026-09-24T09:04:09Z",
+   "linked_at": "2026-09-24T09:04:09Z",
+   "first_seen": "2026-09-24T09:04:48Z",
+   "main": true,
+   "tip": true
+  }
+ ],
+ "pending": [],
+ "problems": [],
+ "milestones": []
+}
