@@ -36,7 +36,7 @@ variables, then Actions.
 | `DISCORD_WEBHOOK` | secret | Discord webhook URL for the same announcement. |
 | `MASTODON_INSTANCE` | variable | Your instance, for example `https://mastodon.social`. |
 | `MASTODON_TOKEN` | secret | Access token with the `write:statuses` scope. |
-| `STALL_DAYS` | variable | Days without a new link before CHAIN STALLED shows. Default 7. |
+| `STALL_DAYS` | variable | Days without a new link before the tip block, badge, STATUS.txt and site say CHAIN STALLED. `0` turns the alarm off (the current setting); unset means 7. |
 | `TRACKER_TOKEN` | secret | A fine-grained token with public read access, used only for the network walk. Raises the rate limit from 1,000 to 5,000 requests an hour. |
 
 ## Moderation

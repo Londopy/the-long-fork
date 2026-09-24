@@ -130,8 +130,9 @@ class Tree:
                 if self.nodes[i].status in ("valid", "lost")]
 
     def stalled(self, stall_days: int) -> bool:
+        """True when the tip is older than stall_days. 0 turns the alarm off."""
         tip = self.tip_node
-        if tip.status == "root" or not tip.linked_at:
+        if stall_days <= 0 or tip.status == "root" or not tip.linked_at:
             return False
         age = parse_time(self.now) - parse_time(tip.linked_at)
         return age > _dt.timedelta(days=stall_days)

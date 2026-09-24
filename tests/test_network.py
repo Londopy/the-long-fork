@@ -253,6 +253,7 @@ class DetailsTest(unittest.TestCase):
         net.fork("alice", "Londopy", when="2026-09-25T00:00:00Z")
         self.assertFalse(net.build(now="2026-10-01T00:00:00Z").stalled(7))
         self.assertTrue(net.build(now="2026-10-03T00:00:00Z").stalled(7))
+        self.assertFalse(net.build(now="2027-10-03T00:00:00Z").stalled(0))  # 0 = alarm off
 
     def test_first_seen_is_kept_across_runs(self):
         net = Net()

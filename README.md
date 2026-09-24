@@ -100,9 +100,6 @@ a tree. The **main chain** is the longest path from the root, and on a tie the
 fork created first wins. Everything else is a side branch, and side branches
 count too. If one grows longer, it becomes the main chain.
 
-If no new link lands for 7 days, this page says **CHAIN STALLED**. That's the
-cue to start a side branch and overtake.
-
 ## The canvas
 
 Each link may set one cell. This is the canvas as it stands at the tip.
