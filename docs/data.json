@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated_at": "2026-09-24T09:04:48Z",
+ "generated_at": "2026-09-24T09:55:49Z",
  "root": "Londopy/the-long-fork",
  "repo_name": "the-long-fork",
  "pages": "https://londopy.github.io/the-long-fork/",
@@ -9,7 +9,7 @@
   "height": 32,
   "blank": "."
  },
- "stall_days": 7,
+ "stall_days": 0,
  "milestone_depths": [
   10,
   25,
