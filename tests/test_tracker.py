@@ -80,7 +80,8 @@ class TrackerTest(unittest.TestCase):
         self.farm.fork("alice", "Londopy")
         self.farm.add_link("alice", cell=Cell(31, 15, "@"), note="hi from SLO")
         self.farm.fork("bob", "alice")
-        self.farm.add_link("bob", message="Update CHAIN.txt")
+        self.farm.add_link("bob", message="Update CHAIN.txt", crlf=True)  # a Windows editor
+        self.assertIn(b"\r\n", self.farm.read_bytes("bob", "CHAIN.txt"))
         self.farm.fork("carol", "bob")
         self.farm.add_link("carol", cell=Cell(32, 15, "#"))
         self.farm.fork("xavier", "Londopy")

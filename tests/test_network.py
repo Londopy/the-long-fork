@@ -83,6 +83,16 @@ class InvalidLinkTest(unittest.TestCase):
         self.assertIn("README.md", by_owner(tree, "alice").reasons[0])
         self.assertEqual(by_owner(tree, "bob").status, "valid")
 
+    def test_wrong_depth_is_invalid(self):
+        from longfork import chain
+        net = Net()
+        base = net.content["londopy"]
+        net.fork("alice", "Londopy", lines=base + [
+            chain.format_line(5, "alice", "2026-09-24", chain.line_hash(base[-1]))])
+        tree = net.build()
+        self.assertIn("depth should be 1", by_owner(tree, "alice").reasons[0])
+        self.assertEqual(tree.depth, 0)
+
     def test_bad_hash_is_invalid(self):
         net = Net()
         base = net.content["londopy"]

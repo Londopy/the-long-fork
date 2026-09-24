@@ -217,7 +217,7 @@ def build(root: Repo, repos: Dict[str, Repo], inspections: Dict[str, Inspection]
             problems.append((repo, "CHAIN.txt doesn't start with the root line"))
             continue
         ids = insert(lines)
-        rewrote_at = _first_difference(base, lines)
+        rewrote_at = first_difference(base, lines)
         if rewrote_at is None:
             if len(lines) == len(base):
                 others = sorted(set(insp.changed) - config.ALLOWED_FILES)
@@ -271,12 +271,42 @@ def build(root: Repo, repos: Dict[str, Repo], inspections: Dict[str, Inspection]
     return tree
 
 
-def _first_difference(base: List[str], lines: List[str]) -> Optional[int]:
+def first_difference(base: List[str], lines: List[str]) -> Optional[int]:
     """Where `lines` stops extending `base`, or None if it only appends."""
     for i, line in enumerate(base):
         if i >= len(lines) or lines[i] != line:
             return i
     return None
+
+
+def link_errors(line: chain.Line, position: int, prev_text: Optional[str], owner: str,
+                changed: List[str], rewrote_at: Optional[int] = None) -> List[str]:
+    """Problems with one fork's own link at `position` in its CHAIN.txt. The
+    tracker and the self-check in a fork both use this, so they always agree."""
+    errors = chain.check_link(line, position, prev_text, owner)
+    if rewrote_at is not None:
+        errors.insert(0, "rewrote line %d of CHAIN.txt, which was already in the chain when this "
+                         "fork was made" % rewrote_at)
+    others = sorted(set(changed) - config.ALLOWED_FILES)
+    if others:
+        errors.append("changed files other than %s: %s" % (config.CHAIN_FILE, ", ".join(others)))
+    return errors
+
+
+def link_warnings(depth: int, owner: str, commits: List[Tuple[str, str, str]], single: bool,
+                  repo_name: str = config.REPO_NAME, owner_type: str = "User") -> List[str]:
+    """Style notes that don't stop a link from counting."""
+    warnings = []
+    if len(commits) > 1 and single:
+        warnings.append("made %d commits; the rules ask for one" % len(commits))
+    want = "link %d: %s" % (depth, owner)
+    if commits and not any(s.strip().lower() == want.lower() for _, _, s in commits):
+        warnings.append("the commit message should be '%s'" % want)
+    if repo_name != config.REPO_NAME:
+        warnings.append("the repo was renamed to %s (rule 2)" % repo_name)
+    if owner_type == "Organization":
+        warnings.append("the fork belongs to an organization")
+    return warnings
 
 
 def _judge(node, repo, insp, ids, gap, rewrote_at, nodes, claims, prior, excluded, now):
@@ -286,31 +316,17 @@ def _judge(node, repo, insp, ids, gap, rewrote_at, nodes, claims, prior, exclude
     # a future-dated commit from shifting on every run.
     node.first_seen = (prior.get(node.id) or {}).get("first_seen") or now
     node.linked_at = _clamp(insp.link_date or node.forked_at, node.forked_at, node.first_seen)
+    node.rewrote = rewrote_at is not None
     prev_text = nodes[node.parent].text if node.parent else None
-    errors = chain.check_link(node.line, node.depth, prev_text, repo.owner)
-
-    if rewrote_at is not None:
-        node.rewrote = True
-        errors.insert(0, "rewrote line %d of CHAIN.txt, which was already in the chain when this "
-                         "fork was made" % rewrote_at)
+    errors = link_errors(node.line, node.depth, prev_text, repo.owner, insp.changed, rewrote_at)
     for pos in gap:
         other = nodes[ids[pos]]
         if ids[pos] in claims or not _was_seen(prior.get(ids[pos])):
             errors.append("line %d (%s) wasn't in the parent fork's CHAIN.txt; add only your own "
                           "line to the fork you forked" % (pos, chain.safe_user(other.line.user)))
-    others = sorted(set(insp.changed) - config.ALLOWED_FILES)
-    if others:
-        errors.append("changed files other than %s: %s" % (config.CHAIN_FILE, ", ".join(others)))
 
-    if len(insp.commits) > 1 and not gap:
-        node.warnings.append("made %d commits; the rules ask for one" % len(insp.commits))
-    want = "link %d: %s" % (node.depth, repo.owner)
-    if insp.commits and not any(s.strip().lower() == want.lower() for _, _, s in insp.commits):
-        node.warnings.append("the commit message should be '%s'" % want)
-    if repo.name != config.REPO_NAME:
-        node.warnings.append("the repo was renamed to %s (rule 2)" % repo.name)
-    if repo.owner_type == "Organization":
-        node.warnings.append("the fork belongs to an organization")
+    node.warnings += link_warnings(node.depth, repo.owner, insp.commits, not gap,
+                                   repo.name, repo.owner_type)
     date_warning = _date_warning(node.line.date, node.forked_at, node.linked_at)
     if date_warning:
         node.warnings.append(date_warning)

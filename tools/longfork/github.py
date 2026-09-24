@@ -88,9 +88,9 @@ class GitHub:
                 self.sleep(wait)
                 continue
             except urllib.error.URLError as e:
-                if attempt == 4:
+                if attempt >= 2:  # can't connect at all: give up fast
                     raise GitHubError(0, str(e.reason))
-                self.sleep(2 ** attempt)
+                self.sleep(1 + attempt)
                 continue
             payload = json.loads(raw.decode("utf-8")) if raw.strip() else None
             if cache and method == "GET" and rh.get("etag"):

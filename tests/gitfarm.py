@@ -69,10 +69,11 @@ class GitFarm:
         when = network.iso(self.clock)
         work = Path(tempfile.mkdtemp(dir=self.base))
         run(["git", "init", "-q", "-b", "main", str(work)])
-        (work / config.CHAIN_FILE).write_text(config.ROOT_LINE + "\n", "utf-8")
-        (work / "README.md").write_text("# the-long-fork\n", "utf-8")
+        (work / config.CHAIN_FILE).write_bytes((config.ROOT_LINE + "\n").encode())
+        (work / "README.md").write_bytes(b"# the-long-fork\n")
+        (work / ".gitattributes").write_bytes(b"* text=auto eol=lf\n")  # as in the real repo
         for name, text in (files or {}).items():
-            (work / name).write_text(text, "utf-8")
+            (work / name).write_bytes(text.encode())
         self._commit(work, "root", when)
         self.meta[config.ROOT_OWNER.lower()] = dict(
             owner=config.ROOT_OWNER, name=config.REPO_NAME, parent=None, created_at=when,
@@ -95,32 +96,40 @@ class GitFarm:
         run(["git", "clone", "-q", "--bare", str(self.path(parent)), str(dest)])
         return owner
 
-    def edit(self, owner, change, message, hours=0.25):
-        """Clone `owner`'s fork, let `change(workdir)` edit it, commit and push."""
+    def edit(self, owner, change, message, hours=0.25, raw=()):
+        """Clone `owner`'s fork, let `change(workdir)` edit it, commit and push.
+        Files named in `raw` are committed byte for byte, skipping .gitattributes."""
         when = self.tick(hours)
         work = Path(tempfile.mkdtemp(dir=self.base))
         run(["git", "clone", "-q", str(self.path(owner)), str(work)])
         change(work)
-        self._commit(work, message, when)
+        self._commit(work, message, when, raw)
         run(["git", "push", "-q", "origin", "HEAD:main"], cwd=work)
         rmtree(work)
         self.meta[owner.lower()]["pushed_at"] = when
 
-    def add_link(self, owner, user=None, cell=None, note="", files=None, message=None, lines=None):
+    def add_link(self, owner, user=None, cell=None, note="", files=None, message=None, lines=None,
+                 crlf=False):
         """Append the correct next line (or `lines`, verbatim) to the fork's CHAIN.txt."""
         def change(work):
             path = work / config.CHAIN_FILE
-            current = chain.read_lines(path.read_text("utf-8"))
+            current = chain.read_lines(path.read_bytes().decode("utf-8"))
             new = lines if lines is not None else [
                 chain.next_line(current, user or owner, self.clock.strftime("%Y-%m-%d"), cell, note)]
-            path.write_text("\n".join(current + new) + "\n", "utf-8")
+            eol = "\r\n" if crlf else "\n"
+            path.write_bytes((eol.join(current + new) + eol).encode("utf-8"))
             for name, text in (files or {}).items():
-                (work / name).write_text(text, "utf-8")
+                (work / name).write_bytes(text.encode("utf-8"))
         depth = len(chain.read_lines(self.read(owner, config.CHAIN_FILE)))
-        self.edit(owner, change, message or "link %d: %s" % (depth, owner))
+        self.edit(owner, change, message or "link %d: %s" % (depth, owner),
+                  raw=[config.CHAIN_FILE] if crlf else [])
 
     def read(self, owner, name):
-        return run(["git", "--git-dir", str(self.path(owner)), "show", "main:" + name])
+        return self.read_bytes(owner, name).decode("utf-8")
+
+    def read_bytes(self, owner, name):
+        return subprocess.run(["git", "--git-dir", str(self.path(owner)), "show", "main:" + name],
+                              capture_output=True, check=True).stdout
 
     def delete(self, owner):
         """Delete a fork; GitHub hands its forks to its parent."""
@@ -132,22 +141,34 @@ class GitFarm:
             parent["forks"].append(child)
         rmtree(self.base / m["owner"])
 
-    def _commit(self, work, message, when):
+    def _commit(self, work, message, when, raw=()):
         env = dict(os.environ, GIT_AUTHOR_DATE=when, GIT_COMMITTER_DATE=when)
         run(["git", "-c", "user.name=test", "-c", "user.email=test@example.com", "add", "-A"], cwd=work)
+        for name in raw:
+            blob = run(["git", "hash-object", "-w", "--no-filters", name], cwd=work).strip()
+            run(["git", "update-index", "--cacheinfo", "100644,%s,%s" % (blob, name)], cwd=work)
         run(["git", "-c", "user.name=test", "-c", "user.email=test@example.com", "commit", "-q",
              "--allow-empty", "-m", message], cwd=work, env=env)
 
     # What the REST API returns for a repo.
     def api_repo(self, key):
         m = self.meta[key]
-        return {
+        item = {
             "name": m["name"], "full_name": m["owner"] + "/" + m["name"],
             "owner": {"login": m["owner"], "type": m["type"]}, "fork": m["parent"] is not None,
             "created_at": m["created_at"], "pushed_at": m["pushed_at"],
             "default_branch": m["default_branch"], "forks_count": len(m["forks"]), "size": 12,
             "disabled": False,
         }
+        if m["parent"]:
+            p = self.meta[m["parent"].lower()]
+            item["parent"] = {"full_name": p["owner"] + "/" + p["name"], "default_branch": p["default_branch"]}
+        return item
+
+    def clone(self, owner, dest):
+        """A participant's local clone of their fork."""
+        run(["git", "clone", "-q", str(self.path(owner)), str(dest)])
+        return Path(dest)
 
 
 class FakeAPI:
