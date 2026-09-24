@@ -56,6 +56,16 @@ class RenderTest(unittest.TestCase):
         self.assertEqual({n["status"] for n in nodes.values()}, {"root", "valid"})
         self.assertEqual(render.load_data("not json"), ({}, [], {}))
 
+    def test_unowned_lines_never_show_their_text(self):
+        net = Net()
+        net.fork("alice", "Londopy", extra=["torvalds"], note="fine")
+        forged = [l for l in net.content["alice"] if "torvalds" in l][0]
+        tree = net.build()
+        text = render.tree_txt(tree, tree.now) + render.data_json(tree, [], 7, False, tree.now)
+        self.assertNotIn("torvalds", text.replace(" (torvalds) wasn't", ""))  # only alice's own reason names it
+        self.assertNotIn(forged, text)
+        self.assertIn('"fine"', text)
+
     def test_stalled_outputs(self):
         net = Net()
         net.fork("alice", "Londopy", when="2026-09-25T00:00:00Z")

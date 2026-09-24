@@ -111,10 +111,12 @@ def _rows(tree: Tree, node: Node, mark: str) -> List[str]:
     tag = TAGS[node.status]
     if node.id == tree.tip:
         tag = (tag + " <== TIP").strip()
-    note = '"%s"' % chain.safe_text(node.line.note) if node.line.note else ""
+    ghost = node.status == "unverified"
+    note = '"%s"' % chain.safe_text(node.line.note) if node.line.note and not ghost else ""
     row = "%s %6d  %-20s %-10s  %-8s %s" % (
-        mark, node.depth, chain.safe_user(node.owner), chain.safe_text(node.line.date)[:10] or "?",
-        node.line.cell or "-", " ".join(x for x in (note, tag) if x))
+        mark, node.depth, chain.safe_user(node.owner),
+        "?" if ghost else chain.safe_text(node.line.date)[:10] or "?",
+        "-" if ghost else node.line.cell or "-", " ".join(x for x in (note, tag) if x))
     rows = [row.rstrip()]
     if node.status not in ("valid", "root"):
         rows += ["           - " + chain.safe_text(r) for r in node.reasons]
@@ -290,11 +292,13 @@ def data_json(tree: Tree, milestones: List[dict], stall_days: int, stalled: bool
 
 
 def _node_json(tree: Tree, n: Node) -> dict:
+    ghost = n.status == "unverified"  # nobody owns it, so none of its text is shown
     return {
-        "id": n.id, "parent": n.parent, "depth": n.depth, "line": n.text,
+        "id": n.id, "parent": n.parent, "depth": n.depth, "line": "" if ghost else n.text,
         "owner": n.owner, "repo": n.repo_name, "status": n.status,
         "reasons": n.reasons, "warnings": n.warnings,
-        "cell": str(n.line.cell) if n.line.cell else None, "note": n.line.note, "date": n.line.date,
+        "cell": str(n.line.cell) if n.line.cell and not ghost else None,
+        "note": "" if ghost else n.line.note, "date": "" if ghost else n.line.date,
         "forked_at": n.forked_at, "linked_at": n.linked_at, "first_seen": n.first_seen,
         "main": n.main, "tip": n.id == tree.tip,
     }

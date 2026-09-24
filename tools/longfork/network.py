@@ -352,12 +352,16 @@ def _settle_unclaimed(node, prior, excluded):
         node.repo_name = old.get("repo", "")
         node.forked_at = old.get("forked_at", "")
         node.linked_at = old.get("linked_at", "")
-        node.reasons = ["the fork is gone (deleted, renamed away, or its account closed)"]
+        node.reasons = ["no fork has this line anymore: the fork is gone, or its owner changed "
+                        "the line after someone forked it"]
         if node.owner.lower() in excluded:
             node.status = "excluded"
             node.reasons = ["excluded by the maintainer: " + (excluded[node.owner.lower()] or "rule 9")]
     else:
+        # Nobody owns this line, so nobody can be asked to fix or moderate it:
+        # its claimed name and note are never shown.
         node.status = "unverified"
+        node.owner = "unknown"
         node.reasons = ["no fork in the network added this line"]
 
 

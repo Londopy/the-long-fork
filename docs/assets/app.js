@@ -211,6 +211,10 @@ function canvas(data) {
 
 function describe(n) {
   const kind = kindOf(n);
+  if (kind === "unverified") {
+    return [el("div", { class: "big" }, "Depth " + n.depth), el("div", {}, "An unverified line"),
+      el("div", { class: "dim" }, "No fork in the network added it, so it isn't shown and nothing below it counts.")];
+  }
   const parts = [
     el("div", { class: "big" }, n.status === "root" ? "The root" : "Depth " + n.depth),
     el("div", {}, "@" + n.owner + " · " + KIND_LABEL[kind]),

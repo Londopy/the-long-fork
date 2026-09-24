@@ -106,8 +106,9 @@ class InvalidLinkTest(unittest.TestCase):
         net.fork("alice", "Londopy", extra=["ghost1", "ghost2"])
         net.fork("bob", "alice")
         tree = net.build()
-        self.assertEqual(statuses(tree), {"Londopy": "root", "ghost1": "unverified",
-                                          "ghost2": "unverified", "alice": "invalid", "bob": "invalid"})
+        self.assertEqual(statuses(tree), {"Londopy": "root", "unknown": "unverified",
+                                          "alice": "invalid", "bob": "invalid"})
+        self.assertEqual(sum(1 for n in tree.nodes.values() if n.status == "unverified"), 2)
         self.assertTrue(any("wasn't in the parent" in r for r in by_owner(tree, "alice").reasons))
         self.assertTrue(any("can't be verified" in r for r in by_owner(tree, "bob").reasons))
         self.assertEqual((tree.depth, tree.total_links), (0, 0))
@@ -183,7 +184,7 @@ class DeletedLinkTest(unittest.TestCase):
         net.delete("xeno")
         net.reparent("yuki", "alice")
         tree = net.build()
-        self.assertEqual(statuses(tree)["xeno"], "unverified")
+        self.assertEqual(statuses(tree)["unknown"], "unverified")
         self.assertEqual(by_owner(tree, "yuki").status, "invalid")
         self.assertEqual(tree.tip_node.owner, "alice")
 

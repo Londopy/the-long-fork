@@ -62,6 +62,20 @@ A walk costs one request per repo that has forks, and nothing for listings
 that haven't changed. If a walk does run out of requests, the tracker keeps
 the last status and resumes on the next run, with its caches still warm.
 
+Why the walk isn't GraphQL: the tracker reads every file and diff through git,
+so the API is only used to list forks. REST listings are ETag-cached and a 304
+is free, while GraphQL queries can't be conditional and always cost points. A
+network shaped like a chain also gains little from nested GraphQL queries,
+since each level still depends on the one before. If the network ever becomes
+wide and bushy enough that cold walks hurt, a `TRACKER_TOKEN` is the cheaper
+fix, and the walk is isolated in `walk()` in `tools/longfork/github.py`.
+
+## Announcements discussion
+
+The tracker comments on the discussion whose number is in `ANNOUNCE_DISCUSSION`.
+Pin that discussion in the Discussions tab (the API can't pin), so newcomers
+see the latest tip first.
+
 ## Renaming
 
 The root repo's name is in `tools/longfork/config.py`, in the `if:` guards of

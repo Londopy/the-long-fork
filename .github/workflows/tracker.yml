@@ -41,7 +41,9 @@ jobs:
 
       - name: Commit the new status
         run: |
-          git add STATUS.txt tree.txt badge.json CANVAS.txt README.md docs/data.json
+          for f in STATUS.txt tree.txt badge.json CANVAS.txt README.md docs/data.json; do
+            if [ -e "$f" ]; then git add -- "$f"; fi
+          done
           if git diff --cached --quiet; then
             echo "Nothing changed."
             exit 0
