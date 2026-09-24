@@ -1,0 +1,28 @@
+THE LONG FORK - RULES
+
+1. Fork the current tip, not the root. The tip is listed in the root
+   repo's STATUS.txt.
+2. Do not rename the repo. (Keeps the chain easy to follow.)
+3. Make exactly one commit: append one line to CHAIN.txt.
+4. Line format:
+     <depth> | <github-username> | <YYYY-MM-DD> | <prev-hash> | <cell> | <note>
+   Depth = previous line's depth + 1.
+   prev-hash = first 12 hex characters of the SHA-256 of the previous
+   line's full text (no trailing newline).
+   cell = x,y=c sets one cell of the shared 64 x 32 canvas (x is 0-63,
+   y is 0-31, c is one printable ASCII character other than a space
+   or |), or - to skip.
+   Note is optional, max 80 characters, plain ASCII only.
+5. Commit message format:
+     link <depth>: <github-username>
+6. Do not change any other file.
+7. Do not delete your fork. Deleting a link breaks the chain for
+   everyone after you.
+8. One link per human. No alt accounts, no throwaway orgs.
+9. Keep notes clean. No links, no ads, no slurs. Offending links
+   get excluded from the official count.
+
+Example CHAIN.txt:
+  0 | Londopy | 2026-09-24 | 000000000000 | - | root
+  1 | someuser | 2026-09-25 | 766aac5a6391 | 31,15=@ | hi
+  2 | anotheruser | 2026-09-25 | dfd786cf1f66 | 32,15=# |

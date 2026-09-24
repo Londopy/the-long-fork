@@ -255,8 +255,8 @@ def build(root: Repo, repos: Dict[str, Repo], inspections: Dict[str, Inspection]
     for node in nodes.values():
         if node.status == "unverified" and node.repo is None:
             _settle_unclaimed(node, prior, excluded)
-        old = prior.get(node.id)
-        node.first_seen = (old or {}).get("first_seen") or now
+        if not node.first_seen:
+            node.first_seen = (prior.get(node.id) or {}).get("first_seen") or now
 
     _propagate(nodes, root_id)
 
@@ -282,7 +282,10 @@ def _first_difference(base: List[str], lines: List[str]) -> Optional[int]:
 def _judge(node, repo, insp, ids, gap, rewrote_at, nodes, claims, prior, excluded, now):
     node.repo, node.owner, node.repo_name = repo, repo.owner, repo.full_name
     node.forked_at = repo.created_at or now
-    node.linked_at = _clamp(insp.link_date or node.forked_at, node.forked_at, now)
+    # The line existed by the time the tracker first saw it, which also keeps
+    # a future-dated commit from shifting on every run.
+    node.first_seen = (prior.get(node.id) or {}).get("first_seen") or now
+    node.linked_at = _clamp(insp.link_date or node.forked_at, node.forked_at, node.first_seen)
     prev_text = nodes[node.parent].text if node.parent else None
     errors = chain.check_link(node.line, node.depth, prev_text, repo.owner)
 
