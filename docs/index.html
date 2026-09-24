@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>the-long-fork</title>
+  <meta name="description" content="A repo that exists to be forked, one link at a time, as deep as possible. The live chain: its depth, its tip, the whole tree and the shared canvas.">
+  <link rel="icon" href="assets/fork.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/site.css">
+  <script>try { var t = localStorage.getItem("theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="./">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="5" r="2.2"/><circle cx="18" cy="5" r="2.2"/><circle cx="12" cy="19" r="2.2"/><path d="M6 7.2v1.3a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V7.2M12 11.5v5.3"/></svg>
+        the-long-fork
+      </a>
+      <nav aria-label="Project">
+        <a href="link/">Make your line</a>
+        <a href="https://github.com/Londopy/the-long-fork/blob/main/RULES.txt">Rules</a>
+        <a href="https://github.com/Londopy/the-long-fork/blob/main/tree.txt">tree.txt</a>
+        <a href="https://github.com/Londopy/the-long-fork">GitHub</a>
+      </nav>
+      <button class="ghost" id="theme" type="button">Theme: auto</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <p class="label">Chain depth</p>
+        <p class="depth" id="depth">&hellip;</p>
+        <p class="tipline" id="tipline">Loading the chain&hellip;</p>
+        <p class="lede">A repo whose only purpose is to be forked, one link at a time, as deep as possible. Fork the current tip, add one line to <code>CHAIN.txt</code>, pass it on. The code does nothing; the chain is the project.</p>
+      </div>
+      <div class="actions">
+        <a class="button primary" id="fork-tip" href="tip/?fork">Fork the tip</a>
+        <a class="button secondary" href="link/">Make your line</a>
+      </div>
+    </section>
+
+    <div id="stall"></div>
+
+    <section class="stats" aria-label="The chain in numbers">
+      <div class="tile"><p class="label">Links that count</p><p class="value" id="stat-links">&ndash;</p><p class="sub">across the whole tree</p></div>
+      <div class="tile"><p class="label">Side branches</p><p class="value" id="stat-branches">&ndash;</p><p class="sub">with a link that counts</p></div>
+      <div class="tile"><p class="label">Pending forks</p><p class="value" id="stat-pending">&ndash;</p><p class="sub">forked, no line yet</p></div>
+      <div class="tile"><p class="label">Last new tip</p><p class="value" id="stat-last">&ndash;</p><p class="sub" id="stat-last-sub">&nbsp;</p></div>
+    </section>
+
+    <section class="card" id="tree-card">
+      <header>
+        <h2>The chain</h2>
+        <p class="note">Drag to pan, pinch or Ctrl + scroll to zoom, click a link to open its fork.</p>
+        <div class="tools">
+          <button class="ghost" id="fit" type="button">Fit</button>
+          <button class="ghost" id="to-tip" type="button">Go to tip</button>
+        </div>
+      </header>
+      <ul class="legend" id="legend" aria-label="Legend"></ul>
+      <div class="tree-box" id="tree">
+        <div class="tip-box" id="tree-tip" hidden></div>
+        <p class="tree-hint" id="tree-hint"></p>
+      </div>
+    </section>
+
+    <div class="two">
+      <section class="card">
+        <header>
+          <h2>Deepest link over time</h2>
+          <p class="note">Each step is a new record.</p>
+        </header>
+        <div class="body"><div class="chart" id="chart"></div></div>
+      </section>
+      <section class="card">
+        <header>
+          <h2>The canvas</h2>
+          <p class="note" id="canvas-note">Each link may set one cell.</p>
+        </header>
+        <div class="body">
+          <div class="canvas-view"><pre id="canvas" role="img" aria-label="The 64 by 32 character canvas"></pre></div>
+          <label class="scrub">Replay <input type="range" id="scrub" min="0" max="0" value="0" aria-describedby="scrub-value"> <span id="scrub-value"></span></label>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" id="links">
+      <header>
+        <h2>Every line</h2>
+        <p class="note">The tree above, as a table. Newest first.</p>
+      </header>
+      <div class="table-tools">
+        <label>Show
+          <select id="filter">
+            <option value="all">everything</option>
+            <option value="main">the main chain</option>
+            <option value="side">side branches</option>
+            <option value="problems">lines that don't count</option>
+          </select>
+        </label>
+        <span id="count"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th class="num">Depth</th><th>Link</th><th>Status</th><th>Date</th><th>Cell</th><th>Note</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <header><h2>Forks that aren't links</h2><p class="note">Yet, or at all.</p></header>
+      <div class="lists">
+        <div><h3>Pending</h3><ul id="pending"></ul></div>
+        <div><h3>Not links</h3><ul id="problems"></ul></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap" id="footer">
+    The tracker walks the fork network twice a day and writes <a href="data.json">data.json</a>; this page only reads it.
+    Source, rules and the full tree are on <a href="https://github.com/Londopy/the-long-fork">GitHub</a>.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Going to the tip &middot; the-long-fork</title>
+  <link rel="icon" href="../assets/fork.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <main class="wrap">
+    <p style="margin-top: 40px">Finding the current tip&hellip;</p>
+    <p id="fallback">If nothing happens, the tip is listed in the root repo's
+      <a href="https://github.com/Londopy/the-long-fork/blob/main/STATUS.txt">STATUS.txt</a>.</p>
+  </main>
+  <script>
+    // Always-current link to the tip: /tip/ opens the tip repo, /tip/?fork its fork page.
+    fetch("../data.json", { cache: "no-cache" })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var url = String(data.summary.tip_url || "");
+        if (!/^https:\/\/github\.com\/[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/.test(url)) throw new Error("bad tip url");
+        location.replace(new URLSearchParams(location.search).has("fork") ? url + "/fork" : url);
+      })
+      .catch(function () {
+        document.getElementById("fallback").prepend("Couldn't read the tracker's data. ");
+      });
+  </script>
+</body>
+</html>

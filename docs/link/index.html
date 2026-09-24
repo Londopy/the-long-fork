@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Make your line &middot; the-long-fork</title>
+  <meta name="description" content="Writes your CHAIN.txt line for the-long-fork: the right depth, the hash of the line above, and your canvas cell.">
+  <link rel="icon" href="../assets/fork.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/link.css">
+  <script>try { var t = localStorage.getItem("theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="../">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="5" r="2.2"/><circle cx="18" cy="5" r="2.2"/><circle cx="12" cy="19" r="2.2"/><path d="M6 7.2v1.3a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V7.2M12 11.5v5.3"/></svg>
+        the-long-fork
+      </a>
+      <nav aria-label="Project">
+        <a href="../">The chain</a>
+        <a href="https://github.com/Londopy/the-long-fork/blob/main/RULES.txt">Rules</a>
+        <a href="https://github.com/Londopy/the-long-fork">GitHub</a>
+      </nav>
+      <button class="ghost" id="theme" type="button">Theme: auto</button>
+    </div>
+  </header>
+
+  <main class="wrap narrow">
+    <h1>Make your line</h1>
+    <p class="intro">This page writes your <code>CHAIN.txt</code> line for you: the right depth, the hash of the line above yours, today's date and your canvas cell. It only reads public files from GitHub; nothing you type leaves your browser.</p>
+
+    <ol class="steps">
+      <li class="card step">
+        <h2>Fork the tip</h2>
+        <p id="tip-text">Loading the current tip&hellip;</p>
+        <p><a class="button primary" id="fork-link" href="../tip/?fork">Fork the tip</a></p>
+        <p class="note">Keep the name <code>the-long-fork</code>. GitHub allows one fork per account, so if you already have one in this network, that's your link.</p>
+      </li>
+
+      <li class="card step">
+        <h2>The fork you forked</h2>
+        <form id="parent-form" class="row">
+          <label for="parent">Owner</label>
+          <input id="parent" name="parent" autocomplete="off" spellcheck="false" placeholder="username" required>
+          <button class="button secondary" type="submit">Load its CHAIN.txt</button>
+        </form>
+        <p class="note">Usually the tip. If you forked somewhere else, you're on a side branch, which is fine.</p>
+        <p id="parent-status" role="status"></p>
+        <pre class="lastline" id="parent-last" hidden></pre>
+      </li>
+
+      <li class="card step">
+        <h2>You</h2>
+        <div class="row">
+          <label for="user">Your GitHub username</label>
+          <input id="user" autocomplete="username" spellcheck="false" placeholder="your-username">
+        </div>
+        <div class="row">
+          <label for="note">Note (optional)</label>
+          <input id="note" maxlength="120" autocomplete="off" placeholder="up to 80 plain ASCII characters, no links">
+          <span class="count" id="note-count">0/80</span>
+        </div>
+      </li>
+
+      <li class="card step">
+        <h2>Your canvas cell (optional)</h2>
+        <p class="note">Click a cell, then pick the character to put there. Leave it blank to skip.</p>
+        <div class="picker-wrap"><div class="picker" id="picker" aria-hidden="true"></div></div>
+        <div class="row cellrow">
+          <label for="cx">x</label><input id="cx" type="number" min="0" max="63" inputmode="numeric">
+          <label for="cy">y</label><input id="cy" type="number" min="0" max="31" inputmode="numeric">
+          <label for="cch">character</label><input id="cch" maxlength="1" autocomplete="off" spellcheck="false" class="one">
+          <button class="ghost" id="clear-cell" type="button">Skip the canvas</button>
+        </div>
+      </li>
+
+      <li class="card step" id="result">
+        <h2>Your line</h2>
+        <ul class="problems" id="problems"></ul>
+        <pre class="output" id="line" aria-live="polite">Fill in the steps above.</pre>
+        <p class="row"><button class="button secondary" id="copy-line" type="button" disabled>Copy the line</button></p>
+        <p>Commit message: <code id="message">link N: your-username</code> <button class="ghost" id="copy-message" type="button" disabled>Copy</button></p>
+        <p><a class="button primary disabled" id="edit-link" aria-disabled="true">Open CHAIN.txt in your fork</a></p>
+        <p class="note">In the editor, put the line on a new line at the very end of the file, commit with the message above, and change nothing else. The tracker finds you within about 12 hours.</p>
+      </li>
+    </ol>
+  </main>
+
+  <footer class="wrap">Everything here also works from a terminal: <code>python tools/link.py --user your-username --write</code> in a clone of your fork.</footer>
+  <script type="module" src="../assets/link.js"></script>
+</body>
+</html>
