@@ -89,7 +89,8 @@ async function loadParent() {
   state.hash = await lineHash(last);
   const known = state.data && state.data.nodes.find((n) => n.line === last && n.depth === lines.length - 1 && n.status !== "unverified");
   state.cells = known ? cellsOf(pathTo(state.byId, known.id)) : lines.map((line) => parseLine(line).cell);
-  status("Read @" + owner + "'s CHAIN.txt: " + lines.length + " lines, so your link is depth " + lines.length + "."
+  status("Read @" + owner + "'s CHAIN.txt: " + lines.length + (lines.length === 1 ? " line" : " lines")
+    + ", so your link is depth " + lines.length + "."
     + (s && !isTip ? " That fork isn't the tip, so your link starts or continues a side branch." : "")
     + (known ? "" : " (The tracker hasn't seen this fork yet, so the canvas below counts every cell in it.)"));
   $("parent-last").hidden = false;
