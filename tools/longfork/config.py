@@ -32,3 +32,7 @@ MERMAID_MAX_NODES = 60
 
 # Forks bigger than this (GitHub's `size`, in KB) are not fetched.
 MAX_REPO_KB = 50_000
+# A link adds one line (a few more only if links above it were deleted). A fork
+# with more new lines than this is listed as a problem and kept out of the tree,
+# so nobody can flood data.json and the site with made-up lines.
+MAX_EXTRA_LINES = 50

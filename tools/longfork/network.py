@@ -216,8 +216,12 @@ def build(root: Repo, repos: Dict[str, Repo], inspections: Dict[str, Inspection]
         if not lines or lines[0] != config.ROOT_LINE:
             problems.append((repo, "CHAIN.txt doesn't start with the root line"))
             continue
-        ids = insert(lines)
         rewrote_at = first_difference(base, lines)
+        extra = len(lines) - (len(base) if rewrote_at is None else rewrote_at)
+        if extra > config.MAX_EXTRA_LINES:
+            problems.append((repo, "CHAIN.txt has %d lines that aren't in the fork it came from" % extra))
+            continue
+        ids = insert(lines)
         if rewrote_at is None:
             if len(lines) == len(base):
                 others = sorted(set(insp.changed) - config.ALLOWED_FILES)

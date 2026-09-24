@@ -113,6 +113,13 @@ class InvalidLinkTest(unittest.TestCase):
         self.assertTrue(any("can't be verified" in r for r in by_owner(tree, "bob").reasons))
         self.assertEqual((tree.depth, tree.total_links), (0, 0))
 
+    def test_a_flood_of_made_up_lines_stays_out_of_the_tree(self):
+        net = Net()
+        net.fork("alice", "Londopy", extra=["x%d" % i for i in range(60)])
+        tree = net.build()
+        self.assertEqual(len(tree.nodes), 1)
+        self.assertIn("61 lines that aren't in the fork it came from", tree.problems[0][1])
+
     def test_copying_the_tip_without_forking_it_does_not_count(self):
         net = Net()
         net.fork("alice", "Londopy")
