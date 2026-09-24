@@ -1,0 +1,3 @@
+# Links excluded from the official count (rule 9: no links, no ads, no slurs).
+# Maintainer only. One per line:   <username> | <reason>
+# An excluded link doesn't count, but correct links after it still do.
