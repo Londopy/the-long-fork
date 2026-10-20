@@ -1,5 +1,5 @@
 the-long-fork: chain tree
-last checked: 2026-10-19 08:47 UTC
+last checked: 2026-10-20 19:13 UTC
 
 depth 0, 0 links, 0 side branches, 0 pending forks
 * marks the main chain. Links that don't count say why (-); notes on style start with ~.
