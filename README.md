@@ -1,7 +1,7 @@
 # the-long-fork
 
-[![chain depth](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FLondopy%2Fthe-long-fork%2Fmain%2Fbadge.json)](https://londopy.github.io/the-long-fork/)
-[![fork the tip](https://img.shields.io/badge/fork-the%20current%20tip-2563eb)](https://londopy.github.io/the-long-fork/tip/)
+[![chain depth](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FLondopy%2Fthe-long-fork%2Fmain%2Fbadge.json)](https://londo.me/the-long-fork/)
+[![fork the tip](https://img.shields.io/badge/fork-the%20current%20tip-2563eb)](https://londo.me/the-long-fork/tip/)
 
 A repo whose only purpose is to be forked, one link at a time, as deep as
 possible. Fork the **current tip** (never the root), add one line to
@@ -13,7 +13,7 @@ The code does nothing. The chain is the project.
 > [!NOTE]
 > Reading this inside a fork? This page may be out of date. The live tip is
 > always in the root repo's [STATUS.txt](https://github.com/Londopy/the-long-fork/blob/main/STATUS.txt),
-> and <https://londopy.github.io/the-long-fork/tip/> always takes you straight to it.
+> and <https://londo.me/the-long-fork/tip/> always takes you straight to it.
 
 ## The tip
 
@@ -48,12 +48,12 @@ Your line starts with `1 | <your-username> | <YYYY-MM-DD> | 766aac5a6391 |`
 That's all. Don't change any other file, don't open a pull request (your
 fork *is* your link), and don't delete your fork later.
 
-The easy way: the **[link helper](https://londopy.github.io/the-long-fork/link/)**
+The easy way: the **[link helper](https://londo.me/the-long-fork/link/)**
 reads your parent's `CHAIN.txt`, works out the depth and the hash, lets you
 click a canvas cell, and gives you the exact line to paste.
 
 The tracker walks the fork network twice a day, so you'll show up here, in
-`STATUS.txt` and on the [site](https://londopy.github.io/the-long-fork/)
+`STATUS.txt` and on the [site](https://londo.me/the-long-fork/)
 within about 12 hours.
 
 ### The hash by hand
@@ -164,7 +164,7 @@ graph TD
 <!-- TREE END -->
 
 Every branch, with the reason any link doesn't count: [tree.txt](tree.txt).
-Zoomable: [the site](https://londopy.github.io/the-long-fork/).
+Zoomable: [the site](https://londo.me/the-long-fork/).
 
 ## Milestones
 

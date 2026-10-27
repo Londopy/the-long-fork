@@ -12,7 +12,7 @@ ROOT_REPO = ROOT_OWNER + "/" + REPO_NAME
 ROOT_DATE = "2026-09-24"
 ROOT_LINE = "0 | " + ROOT_OWNER + " | " + ROOT_DATE + " | 000000000000 | - | root"
 
-PAGES_URL = "https://londopy.github.io/the-long-fork/"
+PAGES_URL = "https://londo.me/the-long-fork/"
 
 CHAIN_FILE = "CHAIN.txt"
 # The only file a link may change. The canvas cell rides inside the line.

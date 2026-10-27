@@ -26,7 +26,7 @@ jobs:
           MESSAGE: |
             Thanks for joining the chain! Here a link isn't a pull request: your fork *is* your link, and the tracker finds it on its own within about 12 hours. There's nothing to merge, so this pull request is closing.
 
-            Keep your fork (please don't delete it), and look for yourself in [STATUS.txt](https://github.com/Londopy/the-long-fork/blob/main/STATUS.txt) or on [the site](https://londopy.github.io/the-long-fork/). If you forked the root rather than the tip, that's fine: you've started a side branch, and side branches can overtake.
+            Keep your fork (please don't delete it), and look for yourself in [STATUS.txt](https://github.com/Londopy/the-long-fork/blob/main/STATUS.txt) or on [the site](https://londo.me/the-long-fork/). If you forked the root rather than the tip, that's fine: you've started a side branch, and side branches can overtake.
         run: |
           files=$(gh pr view "$PR" --repo "$REPO" --json files --jq '.files[].path')
           if [ "$files" != "CHAIN.txt" ]; then
